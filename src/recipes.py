@@ -1,6 +1,3 @@
-from numbers import Real
-
-
 class Ingredient:
     def __init__(self, name: str, quantity: float, unit: str):
         self.name = name
@@ -69,3 +66,60 @@ class Recipe:
 #     recipe.add_ingredient(Ingredient("Flour", 300.0, "g"))
 #
 #     print(recipe)
+
+
+class ShoppingList:
+    def __init__(self):
+        self._items = []
+
+    def add_recipe(self, recipe: Recipe, portions: float):
+        if portions <= 0:
+            raise ValueError("Количество порций должно быть положительным")
+
+        scaled = recipe.scale(portions)
+        for ingredient in scaled.ingredients:
+            self._items.append((ingredient, recipe.title))
+
+    def remove_recipe(self, title:str):
+        new_items = []
+
+        for item in self._items:
+            item_ingredient = item[0]
+            item_title = item[1]
+            if item_title != title:
+                new_items.append((item_ingredient, item_title))
+
+        self._items = new_items
+
+    def get_list(self):
+        result = {}
+
+        for item in self._items:
+            ingredient = item[0]
+            key = (ingredient.name, ingredient.unit)
+            if key in result:
+                result[key] += ingredient.quantity
+            else:
+                result[key] = ingredient.quantity
+
+        ingredients = []
+
+        for key in result:
+            name = key[0]
+            unit = key[1]
+            quant = result[key]
+            ingredients.append(Ingredient(name, unit, quant))
+        ingredients.sort(key=lambda x : x.name)
+
+        return ingredients
+
+    def __add__(self, other: "ShoppingList"):
+        new_list = ShoppingList
+        for item in self._items:
+            new_list.append(item)
+        for item in other._items:
+            new_list.append(item)
+
+        return new_list
+
+
