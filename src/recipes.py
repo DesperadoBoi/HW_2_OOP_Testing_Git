@@ -108,17 +108,17 @@ class ShoppingList:
             name = key[0]
             unit = key[1]
             quant = result[key]
-            ingredients.append(Ingredient(name, unit, quant))
+            ingredients.append(Ingredient(name, quant, unit))
         ingredients.sort(key=lambda x : x.name)
 
         return ingredients
 
     def __add__(self, other: "ShoppingList"):
-        new_list = ShoppingList
+        new_list = ShoppingList()
         for item in self._items:
-            new_list.append(item)
+            new_list._items.append(item)
         for item in other._items:
-            new_list.append(item)
+            new_list._items.append(item)
 
         return new_list
 

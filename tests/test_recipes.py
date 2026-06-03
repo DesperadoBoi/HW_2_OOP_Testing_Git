@@ -2,6 +2,7 @@ import pytest
 
 from src.recipes import Ingredient
 from src.recipes import Recipe
+from src.recipes import ShoppingList
 
 def test_ingredient():
     ingredient = Ingredient("Мука", 600, "г")
@@ -87,3 +88,65 @@ def test_recipe_len():
     recipe.add_ingredient(Ingredient("Молоко", 300, "мл"))
 
     assert len(recipe) == 2
+
+
+def test_shopping_list_add_recipe():
+    recipe = Recipe("Блины")
+    recipe.add_ingredient(Ingredient("Мука", 500, "г"))
+    recipe.add_ingredient(Ingredient("Молоко", 300, "мл"))
+    shopping_list = ShoppingList()
+    shopping_list.add_recipe(recipe, 2)
+
+    result = shopping_list.get_list()
+    assert len(result) == 2
+    assert result[0].name == "Молоко"
+    assert result[0].quantity == 600.0
+    assert result[1].name == "Мука"
+    assert result[1].quantity == 1000.0
+
+def test_shopping_list_add_recipe_bad_portions():
+    recipe = Recipe("Блины")
+    shopping_list = ShoppingList()
+    with pytest.raises(ValueError):
+        shopping_list.add_recipe(recipe, 0)
+
+def test_shopping_list_remove_recipe():
+    recipe = Recipe("Блины")
+    recipe.add_ingredient(Ingredient("Мука", 500, "г"))
+
+    shopping_list = ShoppingList()
+    shopping_list.add_recipe(recipe, 1)
+    shopping_list.remove_recipe("Блины")
+    assert shopping_list.get_list() == []
+
+def test_shopping_list_get_list():
+    first_recipe = Recipe("Блины")
+    first_recipe.add_ingredient(Ingredient("Мука", 500, "г"))
+
+    second_recipe = Recipe("Пирог")
+    second_recipe.add_ingredient(Ingredient("Мука", 300, "г"))
+    shopping_list = ShoppingList()
+    shopping_list.add_recipe(first_recipe, 1)
+    shopping_list.add_recipe(second_recipe, 1)
+
+    result = shopping_list.get_list()
+    assert len(result) == 1
+    assert result[0].name == "Мука"
+    assert result[0].quantity == 800.0
+    assert result[0].unit == "г"
+
+def test_shopping_list_add():
+    first_recipe = Recipe("Блины")
+    first_recipe.add_ingredient(Ingredient("Мука", 500, "г"))
+    second_recipe = Recipe("Омлет")
+    second_recipe.add_ingredient(Ingredient("Яйцо", 2, "шт"))
+
+    first = ShoppingList()
+    second = ShoppingList()
+    first.add_recipe(first_recipe, 1)
+    second.add_recipe(second_recipe, 1)
+    result_list = first + second
+    result = result_list.get_list()
+    assert len(result) == 2
+    assert first.get_list()[0].name == "Мука"
+    assert second.get_list()[0].name == "Яйцо"
